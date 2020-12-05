@@ -18,8 +18,34 @@ public class CriticalRegionRule implements Rule {
      */
     @Override
     public boolean validate(Game game, Move move) {
-        //TODO
-        return false;
+        //TODO-DONE
+        //The capacity refers to the max number of Knights of each player that are allowed in the critical region.
+        if(!isInCriticalRegion(game, move.getDestination())){
+            return true;
+        }
+
+        int numOfKnights = 0;
+        for(int i=0;i<game.getConfiguration().getSize();i++){
+            for(int j=0;j<game.getConfiguration().getSize();j++){
+                if(isInCriticalRegion(game, new Place(i, j))) {
+                    if (game.getBoard()[i][j] != null) {
+                        if (game.getBoard()[i][j].getPlayer().equals(game.getCurrentPlayer()) &&
+                                game.getBoard()[i][j].getLabel() == 'K') {
+                            numOfKnights++;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(game.getBoard()[move.getSource().x()][move.getSource().y()].getLabel() == 'K'){
+            numOfKnights++;
+        }
+
+        if(numOfKnights > game.getConfiguration().getCriticalRegionCapacity()){
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -33,7 +59,13 @@ public class CriticalRegionRule implements Rule {
      * @return whether the given move is in critical region
      */
     private boolean isInCriticalRegion(Game game, Place place) {
-        //TODO
+        //TODO-DONE
+        int cSize = game.getConfiguration().getCriticalRegionSize();
+        int centralY = game.getCentralPlace().y();
+        int y = place.y();
+        if(y >= centralY - (cSize-1)/2 && y <= centralY + (cSize-1)/2){
+            return true;
+        }
         return false;
     }
 

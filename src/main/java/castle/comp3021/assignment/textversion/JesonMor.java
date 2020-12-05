@@ -2,12 +2,14 @@ package castle.comp3021.assignment.textversion;
 
 import castle.comp3021.assignment.piece.Knight;
 import castle.comp3021.assignment.player.ComputerPlayer;
+import castle.comp3021.assignment.player.ConsolePlayer;
 import castle.comp3021.assignment.player.HumanPlayer;
 import castle.comp3021.assignment.protocol.*;
 import castle.comp3021.assignment.protocol.Color;
 import castle.comp3021.assignment.protocol.exception.UndoException;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -199,8 +201,26 @@ public class JesonMor extends Game {
      * @return an array of available moves
      */
     public @NotNull Move[] getAvailableMoves(Player player) {
-        //TODO
-        return null;
+        //TODO-DONE?
+        var moves = new ArrayList<Move>();
+        for(int i =0;i<configuration.getSize();i++){
+            for(int j=0;j< configuration.getSize();j++){
+                if(board[i][j] != null){
+                    if(board[i][j].getPlayer().equals(player)){
+                        if(player instanceof HumanPlayer) {
+                            var allMoves = board[i][j].getAvailableMoves(this, new Place(i, j));
+                            moves.addAll(Arrays.asList(allMoves));
+                        }
+                        if(player instanceof ComputerPlayer){
+                            var allMoves = board[i][j].getCandidateMove(this, new Place(i, j));
+                            moves.add(allMoves);
+                        }
+                    }
+                }
+            }
+        }
+
+        return  moves.toArray(new Move[0]);
     }
 
     /**
@@ -225,7 +245,16 @@ public class JesonMor extends Game {
      */
     @Override
     public void undo() throws UndoException {
-        //TODO
+        //TODO-DOING
+        if((configuration.getPlayers()[0] instanceof HumanPlayer &&
+                configuration.getPlayers()[1] instanceof ComputerPlayer) ||
+                (configuration.getPlayers()[0] instanceof ComputerPlayer &&
+                        configuration.getPlayers()[1] instanceof  HumanPlayer)){
+            throw new UndoException("Undo is only supported when there is one human player and one computer player");
+        }
+
+
+
     }
 
     /**
@@ -243,7 +272,16 @@ public class JesonMor extends Game {
      */
     @Override
     public void showHistoryMove() {
-        //TODO
+        //TODO-DONE
+        if(moveRecords.size() == 0){
+            System.out.println("No move history.");
+            return;
+        }
+
+        System.out.println("\nGame History:");
+        for(var m : moveRecords){
+            System.out.println(m.toString());
+        }
     }
 
     @Override
