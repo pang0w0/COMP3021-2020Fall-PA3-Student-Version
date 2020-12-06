@@ -79,7 +79,7 @@ public class MakeMoveByBehavior {
             }
 
             int index = new Random().nextInt(capMoves.size());
-            return availableMoves[index];
+            return capMoves.get(index);
         }
 
 
@@ -119,7 +119,8 @@ public class MakeMoveByBehavior {
             return bestBlock;
         }
 
-        return null;
+
+        return null;//should be never reach
     }
 }
 

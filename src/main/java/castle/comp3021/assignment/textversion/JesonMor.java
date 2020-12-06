@@ -223,10 +223,11 @@ public class JesonMor extends Game {
                 for (int j = 0; j < configuration.getSize(); j++) {
                     if (board[i][j] != null) {
                         if (board[i][j].getPlayer().equals(player)) {
-                            board[i][j].resume();//?????????????
                             var allMoves = board[i][j].getCandidateMove(this, new Place(i, j));
-                            board[i][j].resume();
-                            moves.addAll(Arrays.asList(allMoves));
+                            System.out.println("allMove: "+allMoves);
+                            if(allMoves != null) {
+                                moves.addAll(Arrays.asList(allMoves));
+                            }
                         }
                     }
                 }
@@ -271,16 +272,31 @@ public class JesonMor extends Game {
         }
 
         this.numMoves = 0;
+        this.configuration = new Configuration(configuration.getSize(), configuration.getPlayers(),
+                configuration.getNumMovesProtection(), configuration.getCriticalRegionSize(),
+                configuration.getCriticalRegionCapacity());
+        configuration.setAllInitialPieces();
         this.board = configuration.getInitialBoard();
-        var tempMoveRecords = moveRecords;
+        configuration.getPlayers()[0].setScore(0);
+        configuration.getPlayers()[1].setScore(0);
+
+        List<MoveRecord> tempMoveRecords = new ArrayList<>();
+        for(var m : moveRecords){
+            tempMoveRecords.add(new MoveRecord(m));
+        }
         moveRecords.clear();
-        for(var m : tempMoveRecords){
+        for(int i=0;i<tempMoveRecords.size()-2;i++){
             var player = this.configuration.getPlayers()[this.numMoves % this.configuration.getPlayers().length];
             this.currentPlayer = player;
-            var movedPiece = this.getPiece(m.getMove().getSource());
-            this.movePiece(m.getMove());
+            this.movePiece(tempMoveRecords.get(i).getMove());
             this.numMoves++;
-            this.updateScore(player, movedPiece, m.getMove());
+
+            //copy from update score
+            Move tempMove = tempMoveRecords.get(i).getMove();
+            var newScore = player.getScore();
+            newScore += Math.abs(tempMove.getSource().x() - tempMove.getDestination().x());
+            newScore += Math.abs(tempMove.getSource().y() - tempMove.getDestination().y());
+            player.setScore(newScore);
         }
         refreshOutput();
         System.out.println("Game state reverted");

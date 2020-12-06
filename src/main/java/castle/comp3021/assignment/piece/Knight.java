@@ -90,40 +90,22 @@ public class Knight extends Piece {
     @Override
     public synchronized Move getCandidateMove(Game game, Place source) {
         //TODO
-        class Task implements Callable<Move> {
-            @Override
-            public Move call(){
-System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
-                Object[] tempObj = new Object[2];
-                tempObj[0] = game;
-                tempObj[1] = source;
-                calculateMoveParametersQueue.addFirst(tempObj);
-                while (candidateMoveQueue.isEmpty()){
-                    try {
-                        wait();
-                        resume();
-                    }catch (InterruptedException e){
-                        //do nothing?
-                    }
-                }
-                if(candidateMoveQueue.getFirst() == null){
-                    System.out.println("FUCKKKKKKKKKKKKKKKKK");
-                }
-                calculateMoveParametersQueue.clear();
-                return candidateMoveQueue.getFirst();
-            }
+        if(!running.get() || stopped.get()){
+            return null;
         }
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Move> future = executor.submit(new Task());
-
         try {
-            return future.get(1, TimeUnit.SECONDS);
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
-            future.cancel(true);
+            Object[] tempObj = new Object[2];
+            tempObj[0] = game;
+            tempObj[1] = source;
+            calculateMoveParametersQueue.add(tempObj);
+            notifyAll();
+            wait();
+            var move = candidateMoveQueue.poll(1, TimeUnit.SECONDS);
+            return move;
+        } catch (InterruptedException e) {
+            //do nothing?
+            return null;
         }
-        executor.shutdownNow();
-        return null;
     }
 
     private boolean validateMove(Game game, Move move) {
@@ -219,20 +201,30 @@ System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
     public void run() {
         //TODO
         synchronized (this) {
-            try {
-                while (!stopped.get()) {
+            while (!stopped.get()) {
+                try {
                     if (!calculateMoveParametersQueue.isEmpty() &&
                             calculateMoveParametersQueue.getFirst() != null && running.get()) {
                         Game g = ((Game) calculateMoveParametersQueue.getFirst()[0]);
                         Place p = ((Place) calculateMoveParametersQueue.getFirst()[1]);
+
+                        if (getAvailableMoves(g, p).length == 0) {//sometime the piece has no move
+                            calculateMoveParametersQueue.clear();
+                            notifyAll();
+                            wait();
+                            continue;
+                        }
+
                         candidateMoveQueue.add(
                                 new MakeMoveByBehavior(g, getAvailableMoves(g, p), behavior).getNextMove());
-                    } else {
-                        wait();
+                        //System.out.println("The move passed: "+candidateMoveQueue.getFirst());
+                        calculateMoveParametersQueue.clear();
                     }
+                    notifyAll();
+                    wait();
+                }catch (InterruptedException e) {
+                    //e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
     }

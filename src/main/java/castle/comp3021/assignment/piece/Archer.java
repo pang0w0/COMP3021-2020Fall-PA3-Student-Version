@@ -5,6 +5,7 @@ import castle.comp3021.assignment.protocol.*;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -86,7 +87,24 @@ public class Archer extends Piece {
     @Override
     public Move getCandidateMove(Game game, Place source) {
         //TODO
-        return null;
+        synchronized (this) {
+            if(!running.get() || stopped.get()){
+                return null;
+            }
+            try {
+                Object[] tempObj = new Object[2];
+                tempObj[0] = game;
+                tempObj[1] = source;
+                calculateMoveParametersQueue.add(tempObj);
+                notifyAll();
+                wait();
+                var move = candidateMoveQueue.poll(1, TimeUnit.SECONDS);
+                return move;
+            } catch (InterruptedException e) {
+                //do nothing?
+                return null;
+            }
+        }
     }
 
     private boolean validateMove(Game game, Move move) {
@@ -130,6 +148,7 @@ public class Archer extends Piece {
     @Override
     public void pause() {
         //TODO
+        running.set(false);
     }
 
     /**
@@ -141,6 +160,10 @@ public class Archer extends Piece {
     @Override
     public void resume() {
         //TODO
+        synchronized (this) {
+            running.set(true);
+            notifyAll();
+        }
     }
 
     /**
@@ -152,6 +175,7 @@ public class Archer extends Piece {
     @Override
     public void terminate() {
         //TODO
+        stopped.set(true);
     }
 
     /**
@@ -170,5 +194,32 @@ public class Archer extends Piece {
     @Override
     public void run() {
         //TODO
+        synchronized (this) {
+            while (!stopped.get()) {
+                try {
+                    if (!calculateMoveParametersQueue.isEmpty() &&
+                            calculateMoveParametersQueue.getFirst() != null && running.get()) {
+                        Game g = ((Game) calculateMoveParametersQueue.getFirst()[0]);
+                        Place p = ((Place) calculateMoveParametersQueue.getFirst()[1]);
+
+                        if (getAvailableMoves(g, p).length == 0) {//sometime the piece has no move
+                            calculateMoveParametersQueue.clear();
+                            notifyAll();
+                            wait();
+                            continue;
+                        }
+
+                        candidateMoveQueue.add(
+                                new MakeMoveByBehavior(g, getAvailableMoves(g, p), behavior).getNextMove());
+                        //System.out.println("The move passed: "+candidateMoveQueue.getFirst());
+                        calculateMoveParametersQueue.clear();
+                    }
+                    notifyAll();
+                    wait();
+                }catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+            }
+        }
     }
 }
