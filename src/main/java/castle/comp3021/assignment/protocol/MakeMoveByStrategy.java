@@ -1,6 +1,9 @@
 package castle.comp3021.assignment.protocol;
 
 import castle.comp3021.assignment.piece.Knight;
+import castle.comp3021.assignment.textversion.SmartPlayerFactory;
+
+import java.util.Random;
 
 public class MakeMoveByStrategy {
     private final Strategy strategy;
@@ -22,7 +25,16 @@ public class MakeMoveByStrategy {
      * @return a next move
      */
     public Move getNextMove(){
-        // TODO
-        return this.availableMoves[0];
+        // TODO-DOING
+        if(strategy == Strategy.RANDOM){
+            int index = new Random().nextInt(availableMoves.length);
+            return availableMoves[index];
+        }
+
+        if(strategy == Strategy.SMART){
+            return availableMoves[0];//this is wong but don't know how to do now
+        }
+
+        return null;
     }
 }

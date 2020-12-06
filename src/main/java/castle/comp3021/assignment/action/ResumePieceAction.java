@@ -36,7 +36,16 @@ public class ResumePieceAction extends Action {
      */
     @Override
     public void perform() throws ActionException {
-        //TODO
+        //TODO-DONE
+        Place p = ConsolePlayer.parsePlace(args[0]);
+        if(p == null){
+            throw new ActionException("Resume exception");
+        }
+        if(game.getPiece(p) != null && game.getPiece(p).getPlayer() instanceof ComputerPlayer) {
+            game.getPiece(p).resume();
+        }else {
+            throw new ActionException("Resume exception");
+        }
     }
 
     @Override

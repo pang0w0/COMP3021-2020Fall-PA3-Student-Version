@@ -203,17 +203,30 @@ public class JesonMor extends Game {
     public @NotNull Move[] getAvailableMoves(Player player) {
         //TODO-DONE?
         var moves = new ArrayList<Move>();
-        for(int i =0;i<configuration.getSize();i++){
-            for(int j=0;j< configuration.getSize();j++){
-                if(board[i][j] != null){
-                    if(board[i][j].getPlayer().equals(player)){
-                        if(player instanceof HumanPlayer) {
+        if(player instanceof HumanPlayer) {
+            for (int i = 0; i < configuration.getSize(); i++) {
+                for (int j = 0; j < configuration.getSize(); j++) {
+                    if (board[i][j] != null) {
+                        if (board[i][j].getPlayer().equals(player)) {
                             var allMoves = board[i][j].getAvailableMoves(this, new Place(i, j));
                             moves.addAll(Arrays.asList(allMoves));
                         }
-                        if(player instanceof ComputerPlayer){
+                    }
+                }
+            }
+        }
+
+        //return an array containing candidate moves from each piece of computer player which are not paused or terminated.
+        if(player instanceof ComputerPlayer) {
+            System.out.println("Computer is figuring out next move...");
+            for (int i = 0; i < configuration.getSize(); i++) {
+                for (int j = 0; j < configuration.getSize(); j++) {
+                    if (board[i][j] != null) {
+                        if (board[i][j].getPlayer().equals(player)) {
+                            board[i][j].resume();//?????????????
                             var allMoves = board[i][j].getCandidateMove(this, new Place(i, j));
-                            moves.add(allMoves);
+                            board[i][j].resume();
+                            moves.addAll(Arrays.asList(allMoves));
                         }
                     }
                 }
@@ -245,16 +258,32 @@ public class JesonMor extends Game {
      */
     @Override
     public void undo() throws UndoException {
-        //TODO-DOING
-        if((configuration.getPlayers()[0] instanceof HumanPlayer &&
+        //TODO-DONE?
+        if(!((configuration.getPlayers()[0] instanceof HumanPlayer &&
                 configuration.getPlayers()[1] instanceof ComputerPlayer) ||
                 (configuration.getPlayers()[0] instanceof ComputerPlayer &&
-                        configuration.getPlayers()[1] instanceof  HumanPlayer)){
+                        configuration.getPlayers()[1] instanceof  HumanPlayer))){
             throw new UndoException("Undo is only supported when there is one human player and one computer player");
         }
 
+        if(moveRecords.size() == 0){
+            throw new UndoException("No further undo is allowed");
+        }
 
-
+        this.numMoves = 0;
+        this.board = configuration.getInitialBoard();
+        var tempMoveRecords = moveRecords;
+        moveRecords.clear();
+        for(var m : tempMoveRecords){
+            var player = this.configuration.getPlayers()[this.numMoves % this.configuration.getPlayers().length];
+            this.currentPlayer = player;
+            var movedPiece = this.getPiece(m.getMove().getSource());
+            this.movePiece(m.getMove());
+            this.numMoves++;
+            this.updateScore(player, movedPiece, m.getMove());
+        }
+        refreshOutput();
+        System.out.println("Game state reverted");
     }
 
     /**

@@ -3,8 +3,7 @@ package castle.comp3021.assignment.piece;
 import castle.comp3021.assignment.protocol.*;
 
 import java.util.ArrayList;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -91,6 +90,39 @@ public class Knight extends Piece {
     @Override
     public synchronized Move getCandidateMove(Game game, Place source) {
         //TODO
+        class Task implements Callable<Move> {
+            @Override
+            public Move call(){
+System.out.println("TESTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT");
+                Object[] tempObj = new Object[2];
+                tempObj[0] = game;
+                tempObj[1] = source;
+                calculateMoveParametersQueue.addFirst(tempObj);
+                while (candidateMoveQueue.isEmpty()){
+                    try {
+                        wait();
+                        resume();
+                    }catch (InterruptedException e){
+                        //do nothing?
+                    }
+                }
+                if(candidateMoveQueue.getFirst() == null){
+                    System.out.println("FUCKKKKKKKKKKKKKKKKK");
+                }
+                calculateMoveParametersQueue.clear();
+                return candidateMoveQueue.getFirst();
+            }
+        }
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Move> future = executor.submit(new Task());
+
+        try {
+            return future.get(1, TimeUnit.SECONDS);
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            future.cancel(true);
+        }
+        executor.shutdownNow();
         return null;
     }
 
@@ -138,6 +170,7 @@ public class Knight extends Piece {
     @Override
     public void pause() {
         //TODO
+        running.set(false);
     }
 
     /**
@@ -149,6 +182,10 @@ public class Knight extends Piece {
     @Override
     public void resume() {
         //TODO
+        synchronized (this) {
+            running.set(true);
+            notifyAll();
+        }
     }
 
     /**
@@ -160,6 +197,7 @@ public class Knight extends Piece {
     @Override
     public void terminate() {
         //TODO
+        stopped.set(true);
     }
 
     /**
@@ -180,5 +218,22 @@ public class Knight extends Piece {
     @Override
     public void run() {
         //TODO
+        synchronized (this) {
+            try {
+                while (!stopped.get()) {
+                    if (!calculateMoveParametersQueue.isEmpty() &&
+                            calculateMoveParametersQueue.getFirst() != null && running.get()) {
+                        Game g = ((Game) calculateMoveParametersQueue.getFirst()[0]);
+                        Place p = ((Place) calculateMoveParametersQueue.getFirst()[1]);
+                        candidateMoveQueue.add(
+                                new MakeMoveByBehavior(g, getAvailableMoves(g, p), behavior).getNextMove());
+                    } else {
+                        wait();
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -29,7 +29,12 @@ public class UndoAction extends Action {
      */
     @Override
     public void perform() throws ActionException {
-        //TODO
+        //TODO-DONE
+        try {
+            game.undo();
+        }catch (UndoException e){
+            throw new ActionException(e.getMessage());
+        }
     }
 
     @Override

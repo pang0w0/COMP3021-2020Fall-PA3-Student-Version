@@ -39,7 +39,17 @@ public class TerminatePieceAction extends Action {
      */
     @Override
     public void perform() throws ActionException {
-        //TODO
+        //TODO-DONE
+        Place p = ConsolePlayer.parsePlace(args[0]);
+        if(p == null){
+            throw new ActionException("Terminate exception");
+        }
+        if(game.getPiece(p) != null && game.getPiece(p).getPlayer() instanceof ComputerPlayer) {
+            game.getPiece(p).terminate();
+            game.getConfiguration().getPieceThread(game.getPiece(p)).interrupt();
+        }else {
+            throw new ActionException("Terminate exception");
+        }
     }
 
     @Override

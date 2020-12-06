@@ -21,6 +21,11 @@ public class ComputerPlayer extends Player {
 
     @Override
     public @NotNull Move nextMove(Game game, Move[] availableMoves) {
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        for(var m : availableMoves) {
+            System.out.println(m);
+        }
+        //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         return new MakeMoveByStrategy(game, availableMoves, this.strategy).getNextMove();
     }
 }

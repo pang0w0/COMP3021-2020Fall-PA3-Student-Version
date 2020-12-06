@@ -2,6 +2,9 @@ package castle.comp3021.assignment.protocol;
 
 import castle.comp3021.assignment.piece.Knight;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class MakeMoveByBehavior {
     private final Behavior behavior;
     private final Game game;
@@ -26,8 +29,97 @@ public class MakeMoveByBehavior {
      * @return a selected move adopting strategy specified by {@link this#behavior}
      */
     public Move getNextMove(){
-        // TODO
-        return this.availableMoves[0];
+        // TODO-DONE?
+
+        if(behavior == Behavior.RANDOM){
+            int index = new Random().nextInt(availableMoves.length);
+            return availableMoves[index];
+        }
+
+
+
+
+        if(behavior == Behavior.GREEDY) {
+            Move nearestCentral = availableMoves[0];
+            Place central = game.getCentralPlace();
+
+            for (var m : availableMoves) {
+                if (m.getDestination().equals(central)) {
+                    return m;
+                }
+                int nearestCentralDistance = Math.abs(nearestCentral.getDestination().x() - central.x()) +
+                        Math.abs(nearestCentral.getDestination().y() - central.y());
+                int currentMoveDistance = Math.abs(m.getDestination().x() - central.x()) +
+                        Math.abs(m.getDestination().y() - central.y());
+
+                if (currentMoveDistance < nearestCentralDistance) {
+                    nearestCentral = m;//get the nearest central move
+                }
+            }
+            return nearestCentral;
+        }
+
+
+
+
+        if(behavior == Behavior.CAPTURING){
+            var capMoves = new ArrayList<Move>();
+            for(var m : availableMoves){
+                Piece p = game.getBoard()[m.getDestination().x()][m.getDestination().y()];
+                if(p != null){
+                    if(!p.getPlayer().equals(game.getCurrentPlayer())){
+                        capMoves.add(m);
+                    }
+                }
+            }
+
+            if(capMoves.size() == 0){//no move then random
+                int index = new Random().nextInt(availableMoves.length);
+                return availableMoves[index];
+            }
+
+            int index = new Random().nextInt(capMoves.size());
+            return availableMoves[index];
+        }
+
+
+
+
+        if(behavior == Behavior.BLOCKING){
+            Move bestBlock = availableMoves[0];
+            int maxNumOfBocking = 0;
+            for(var m : availableMoves){
+                int numOfBocking = 0;
+                int x = m.getDestination().x();
+                int y = m.getDestination().y();
+                Piece pTop = game.getBoard()[x][y+1];
+                Piece pDown = game.getBoard()[x][y-1];
+                Piece pLeft = game.getBoard()[x-1][y];
+                Piece pRight = game.getBoard()[x+1][y];
+
+                if(pTop != null && pTop.getLabel() == 'K'){
+                    numOfBocking++;
+                }
+                if(pDown != null && pDown.getLabel() == 'K'){
+                    numOfBocking++;
+                }
+                if(pLeft != null && pLeft.getLabel() == 'K'){
+                    numOfBocking++;
+                }
+                if(pRight != null && pRight.getLabel() == 'K'){
+                    numOfBocking++;
+                }
+
+                if(numOfBocking > maxNumOfBocking){
+                    bestBlock = m;
+                    maxNumOfBocking = numOfBocking;
+                }
+            }
+
+            return bestBlock;
+        }
+
+        return null;
     }
 }
 
