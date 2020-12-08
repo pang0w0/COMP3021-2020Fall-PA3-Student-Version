@@ -9,6 +9,8 @@ import castle.comp3021.assignment.protocol.Game;
 import castle.comp3021.assignment.protocol.Player;
 import castle.comp3021.assignment.protocol.exception.InvalidConfigurationError;
 
+import java.util.Arrays;
+
 public class Main {
     protected static Player whitePlayer;
     protected static Player blackPlayer;
@@ -18,12 +20,16 @@ public class Main {
     protected static int criticalRegionCapacity;
 
     static {
+        //original
         whitePlayer = new ConsolePlayer("White");
         blackPlayer = new ComputerPlayer("Black");
-        size = 5;
-        numMovesProtection = 1;
-        criticalRegionSize = 1;
-        criticalRegionCapacity = 1;
+        //
+        size = 15;//15
+        numMovesProtection = 1;//20
+        criticalRegionSize = 5;//5
+        criticalRegionCapacity = 2;//2
+//        whitePlayer = new ComputerPlayer("Random");//new
+//        blackPlayer = SmartPlayerFactory.generateSmartPlayer(size);//new
     }
 
     /**
@@ -43,7 +49,7 @@ public class Main {
         } catch (InvalidConfigurationError e) {
             throw e;
         }
-
+///////////////////original
         for (int i = 0; i < size; i++) {
             if (i % 2 == 0) {
                 var piece = new Knight(blackPlayer);
@@ -53,6 +59,11 @@ public class Main {
                 configuration.addInitialPiece(piece, i, size - 1);
             }
         }
+///////////////////
+//        for(int i=0;i<size;i++){//new
+//            configuration.addInitialPiece(SmartPlayerFactory.generateSmartPieces(size, blackPlayer)[i], i, size-1);
+//        }
+
         for (int i = 0; i < size; i++) {
             if (i % 2 == 0) {
                 configuration.addInitialPiece(new Knight(whitePlayer), i, 0);

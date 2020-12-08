@@ -43,10 +43,18 @@ public class SmartPlayerFactory {
         // TODO optional, if you want to change smart player's pieces instantiation
         var ls = new ArrayList<Piece>();
         for (int i = 0; i < boardSize; i++) {
-            if (i % 2 == 0) {
-                ls.add(new Knight(player, Behavior.GREEDY));
-            } else {
-                ls.add(new Archer(player, Behavior.GREEDY));
+            if(i % 2 == 0) {
+                if(((i * 2) % 3) % 2 == 0) {//01001001
+                    ls.add(new Knight(player, Behavior.RANDOM));
+                }else {
+                    ls.add(new Knight(player, Behavior.GREEDY));
+                }
+            }else {
+                if((i % 3) % 2 == 0) {
+                    ls.add(new Archer(player, Behavior.CAPTURING));//should be more e.g. for size 15: 1001001
+                }else {
+                    ls.add(new Archer(player, Behavior.BLOCKING));//should be less
+                }
             }
         }
         return ls.toArray(new Piece[]{});

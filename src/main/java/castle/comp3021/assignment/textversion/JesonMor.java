@@ -224,7 +224,7 @@ public class JesonMor extends Game {
                     if (board[i][j] != null) {
                         if (board[i][j].getPlayer().equals(player)) {
                             var allMoves = board[i][j].getCandidateMove(this, new Place(i, j));
-                            System.out.println("allMove: "+allMoves);
+                            //System.out.println("allMove: "+allMoves);
                             if(allMoves != null) {
                                 moves.addAll(Arrays.asList(allMoves));
                             }
@@ -271,11 +271,20 @@ public class JesonMor extends Game {
             throw new UndoException("No further undo is allowed");
         }
 
+//        for (var entry :
+//                this.configuration.getPieceThreadMap().entrySet()) {
+//            //entry.getKey()
+//                    System.out.println("@@@@@@@@@@@@@@:"+entry.getValue().getState());
+//        }
+
+
+
         this.numMoves = 0;
         this.configuration = new Configuration(configuration.getSize(), configuration.getPlayers(),
                 configuration.getNumMovesProtection(), configuration.getCriticalRegionSize(),
                 configuration.getCriticalRegionCapacity());
         configuration.setAllInitialPieces();
+
         this.board = configuration.getInitialBoard();
         configuration.getPlayers()[0].setScore(0);
         configuration.getPlayers()[1].setScore(0);

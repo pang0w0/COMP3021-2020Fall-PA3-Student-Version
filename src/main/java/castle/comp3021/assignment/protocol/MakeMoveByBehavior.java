@@ -86,16 +86,30 @@ public class MakeMoveByBehavior {
 
 
         if(behavior == Behavior.BLOCKING){
+            int size = game.getConfiguration().getSize();
             Move bestBlock = availableMoves[0];
             int maxNumOfBocking = 0;
             for(var m : availableMoves){
                 int numOfBocking = 0;
                 int x = m.getDestination().x();
                 int y = m.getDestination().y();
-                Piece pTop = game.getBoard()[x][y+1];
-                Piece pDown = game.getBoard()[x][y-1];
-                Piece pLeft = game.getBoard()[x-1][y];
-                Piece pRight = game.getBoard()[x+1][y];
+                Piece pTop = null;
+                Piece pDown = null;
+                Piece pLeft = null;
+                Piece pRight = null;
+
+                if(y + 1 < size) {
+                    pTop = game.getBoard()[x][y + 1];
+                }
+                if(y - 1 >= 0) {
+                    pDown = game.getBoard()[x][y - 1];
+                }
+                if(x - 1 >= 0) {
+                    pLeft = game.getBoard()[x - 1][y];
+                }
+                if(x + 1 < size) {
+                    pRight = game.getBoard()[x + 1][y];
+                }
 
                 if(pTop != null && pTop.getLabel() == 'K'){
                     numOfBocking++;
