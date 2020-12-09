@@ -1,15 +1,16 @@
 package castle.comp3021.assignment.textversion;
 
+import castle.comp3021.assignment.piece.Archer;
 import castle.comp3021.assignment.piece.Knight;
 import castle.comp3021.assignment.player.ComputerPlayer;
-import castle.comp3021.assignment.player.ConsolePlayer;
+//import castle.comp3021.assignment.player.ConsolePlayer;
 import castle.comp3021.assignment.player.HumanPlayer;
 import castle.comp3021.assignment.protocol.*;
 import castle.comp3021.assignment.protocol.Color;
 import castle.comp3021.assignment.protocol.exception.UndoException;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -260,7 +261,7 @@ public class JesonMor extends Game {
     @Override
     public void undo() throws UndoException {
         //TODO-DONE?
-        if(!((configuration.getPlayers()[0] instanceof HumanPlayer &&
+        if(!((configuration.getPlayers()[0] instanceof HumanPlayer &&//actually it should be always (1)player vs (2)comp
                 configuration.getPlayers()[1] instanceof ComputerPlayer) ||
                 (configuration.getPlayers()[0] instanceof ComputerPlayer &&
                         configuration.getPlayers()[1] instanceof  HumanPlayer))){
@@ -271,21 +272,38 @@ public class JesonMor extends Game {
             throw new UndoException("No further undo is allowed");
         }
 
-//        for (var entry :
-//                this.configuration.getPieceThreadMap().entrySet()) {
-//            //entry.getKey()
-//                    System.out.println("@@@@@@@@@@@@@@:"+entry.getValue().getState());
-//        }
-
-
-
         this.numMoves = 0;
-        this.configuration = new Configuration(configuration.getSize(), configuration.getPlayers(),
-                configuration.getNumMovesProtection(), configuration.getCriticalRegionSize(),
-                configuration.getCriticalRegionCapacity());
-        configuration.setAllInitialPieces();
+//        this.configuration = new Configuration(configuration.getSize(), configuration.getPlayers(),
+//                configuration.getNumMovesProtection(), configuration.getCriticalRegionSize(),
+//                configuration.getCriticalRegionCapacity());
+//        configuration.setAllInitialPieces();
 
-        this.board = configuration.getInitialBoard();
+        for(int i=0;i<board.length;i++){
+            for(int j=0;j<board.length;j++){
+                board[i][j] = null;
+            }
+        }
+
+        int archer = 1;
+        int knight = 0;
+        for (var entry : this.configuration.getPieceThreadMapLinked().entrySet()) {//reset the computer piece
+            if(entry.getKey().getLabel() == 'K'){
+                board[knight][board.length-1] = entry.getKey();
+                knight+=2;
+            }else {
+                board[archer][board.length - 1] = entry.getKey();
+                archer += 2;
+            }
+        }
+
+        for (int i = 0; i < configuration.getSize(); i++) {
+            if (i % 2 == 0) {
+                configuration.addInitialPiece(new Knight(configuration.getPlayers()[0]), i, 0);
+            } else {
+                configuration.addInitialPiece(new Archer(configuration.getPlayers()[0]), i, 0);
+            }
+        }
+
         configuration.getPlayers()[0].setScore(0);
         configuration.getPlayers()[1].setScore(0);
 

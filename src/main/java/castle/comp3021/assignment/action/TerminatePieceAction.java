@@ -4,7 +4,7 @@ import castle.comp3021.assignment.player.ComputerPlayer;
 import castle.comp3021.assignment.player.ConsolePlayer;
 import castle.comp3021.assignment.protocol.Action;
 import castle.comp3021.assignment.protocol.Game;
-import castle.comp3021.assignment.protocol.Piece;
+//import castle.comp3021.assignment.protocol.Piece;
 import castle.comp3021.assignment.protocol.Place;
 import castle.comp3021.assignment.protocol.exception.ActionException;
 

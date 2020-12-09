@@ -1,7 +1,7 @@
 package castle.comp3021.assignment.protocol;
 
-import castle.comp3021.assignment.piece.Knight;
-import castle.comp3021.assignment.textversion.SmartPlayerFactory;
+//import castle.comp3021.assignment.piece.Knight;
+//import castle.comp3021.assignment.textversion.SmartPlayerFactory;
 
 import java.util.Arrays;
 import java.util.Random;

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
  * The Game class
  */
 public abstract class Game implements Cloneable {
-    public static int UNDO_LIMIT = 3;
+    //public static int UNDO_LIMIT = 3;
 
     /**
      * Game configuration
@@ -139,10 +139,12 @@ public abstract class Game implements Cloneable {
         System.out.println("For example: a1->b2 means to move the piece at 'a1' to 'b2'");
         if (this.numMoves < this.configuration.getNumMovesProtection()) {
             System.out.println();
-            System.out.println("Notice: first " + this.configuration.getNumMovesProtection() + " moves are not allowed to" +
+            System.out.println("Notice: first " + this.configuration.getNumMovesProtection() +
+                    " moves are not allowed to" +
                     " capture pieces or win the game.");
         }
-        System.out.println("Critical region size: " + this.configuration.getCriticalRegionSize() + ", capacity: " + this.configuration.getCriticalRegionCapacity());
+        System.out.println("Critical region size: " + this.configuration.getCriticalRegionSize() + ", capacity: " +
+                this.configuration.getCriticalRegionCapacity());
         System.out.println();
         System.out.println("Total Moves: " + this.numMoves);
         // print scores of players

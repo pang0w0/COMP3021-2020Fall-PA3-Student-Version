@@ -1,6 +1,6 @@
 package castle.comp3021.assignment.protocol;
 
-import castle.comp3021.assignment.piece.Knight;
+//import castle.comp3021.assignment.piece.Knight;
 
 import java.util.ArrayList;
 import java.util.Random;

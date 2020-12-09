@@ -9,7 +9,7 @@ import castle.comp3021.assignment.protocol.Game;
 import castle.comp3021.assignment.protocol.Player;
 import castle.comp3021.assignment.protocol.exception.InvalidConfigurationError;
 
-import java.util.Arrays;
+//import java.util.Arrays;
 
 public class Main {
     protected static Player whitePlayer;
@@ -25,7 +25,7 @@ public class Main {
         blackPlayer = new ComputerPlayer("Black");
         //
         size = 15;//15
-        numMovesProtection = 1;//20
+        numMovesProtection = 20;//20
         criticalRegionSize = 5;//5
         criticalRegionCapacity = 2;//2
 //        whitePlayer = new ComputerPlayer("Random");//new
@@ -75,7 +75,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-//        var helper = "four integer arguments are required specifying <size> <numMovesProtection> <criticalRegionSize> <criticalRegionCapacity>";
+//        var helper = "four integer arguments are required specifying <size> <numMovesProtection>
+//        <criticalRegionSize> <criticalRegionCapacity>";
         if (args.length >= 1) {
             try {
                 size = Integer.parseInt(args[0]);

@@ -3,10 +3,11 @@ package castle.comp3021.assignment.protocol;
 import castle.comp3021.assignment.piece.Archer;
 import castle.comp3021.assignment.piece.Knight;
 import castle.comp3021.assignment.player.ComputerPlayer;
-import castle.comp3021.assignment.player.ConsolePlayer;
+//import castle.comp3021.assignment.player.ConsolePlayer;
 import castle.comp3021.assignment.protocol.exception.InvalidConfigurationError;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,6 +51,7 @@ public class Configuration implements Cloneable {
      * Mapping from piece object to thread object of the piece.
      */
     protected Map<Piece, Thread> pieceThreadMap;
+    protected LinkedHashMap<Piece, Thread> pieceThreadMapLinked;
 
     /**
      * All players in the game.
@@ -133,6 +135,7 @@ public class Configuration implements Cloneable {
         this.criticalRegionSize = criticalRegionSize;
         this.criticalRegionCapacity = criticalRegionCapacity;
         this.pieceThreadMap = new HashMap<>();
+        this.pieceThreadMapLinked = new LinkedHashMap<>();
         // We only have 2 players
         this.players = players;
 
@@ -208,7 +211,7 @@ public class Configuration implements Cloneable {
         if(piece.getPlayer() instanceof ComputerPlayer) {
             Thread p = new Thread(piece);
             pieceThreadMap.put(piece, p);
-
+            pieceThreadMapLinked.put(piece, p);
             p.start();
         }
     }
@@ -247,6 +250,10 @@ public class Configuration implements Cloneable {
 
     public Map<Piece, Thread> getPieceThreadMap() {
         return pieceThreadMap;
+    }
+
+    public LinkedHashMap<Piece, Thread> getPieceThreadMapLinked() {
+        return pieceThreadMapLinked;
     }
 
     public Thread getPieceThread(Piece piece) {
